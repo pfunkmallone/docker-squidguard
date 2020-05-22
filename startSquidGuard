@@ -1,13 +1,12 @@
 #!/bin/bash
 set -e
 
-if [  "${UPDATE_BLACKLIST_URL}" != "" ]; then
-	sudo wget -O backlist.tar.gz ${UPDATE_BLACKLIST_URL} \
- 		&& tar -xzf backlist.tar.gz -C /var/lib/squidguard/db \
- 		&& rm backlist.tar.gz \
+if [  "${UPDATE_WHITELIST_URL}" != "" ]; then
+	sudo wget -O whitelist.tar.gz ${UPDATE_WHITELIST_URL} \
+ 		&& tar -xzf whitelist.tar.gz -C /var/lib/squidguard/db \
+ 		&& rm whitelist.tar.gz \
  		&& chown proxy:proxy /var/lib/squidguard/db -R
 fi
-
 
 if [ ! -f /etc/squidguard/squidGuard.conf ]; then
 	# if this file doesn't exist -> it is the first time
@@ -16,17 +15,14 @@ if [ ! -f /etc/squidguard/squidGuard.conf ]; then
 		sudo usermod -u ${SQUID_UID} proxy
 	fi
 	# chown is required especially because directories can be mapped
-	chown -R proxy:proxy /var/lib/squidguard/db /sample-config-simple /sample-config-blacklist /custom-config /var/log/squid3
+	chown -R proxy:proxy /var/lib/squidguard/db /sample-config-denyeverthing /sample-config-whitelist /custom-config /var/log/squid3
 
-	if [  "${SQUID_CONFIG_SOURCE}" != "" ]; then
-		echo "no configuration found -> use ${SQUID_CONFIG_SOURCE}/squidGuard.conf"		
-		ln -s ${SQUID_CONFIG_SOURCE}/squidGuard.conf /etc/squidguard/squidGuard.conf
-	elif [  "${UPDATE_BLACKLIST_URL}" != "" ]; then
-	    echo "no configuration found -> use /sample-config-blacklist"
-		ln -s /sample-config-blacklist/squidGuard.conf /etc/squidguard/squidGuard.conf
+	if [  "${UPDATE_WHITELIST_URL}" != "" ]; then
+	    echo "no configuration found -> use /sample-config-whitelist"
+		ln -s /sample-config-whitelist/squidGuard.conf /etc/squidguard/squidGuard.conf
 	else
-	    echo "no configuration found -> use /sample-config-simple"
-		ln -s /sample-config-simple/squidGuard.conf /etc/squidguard/squidGuard.conf
+	    echo "no configuration found -> use /sample-config-denyeverything"
+		ln -s /sample-config-denyeverything/squidGuard.conf /etc/squidguard/squidGuard.conf
 	fi
 fi
 
