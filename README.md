@@ -1,21 +1,15 @@
-## Introduction [![Build Status](https://travis-ci.org/muenchhausen/docker-squidguard.svg?branch=master)](https://travis-ci.org/muenchhausen/docker-squidguard)
+## Introduction
 
-this image is an [squidGuard](http://www.squidguard.org/) addition to [sameersbn/docker-squid](https://github.com/sameersbn/docker-squid). I find squidGuard very useful to limit access to certain internet pages and to reduce the risk for downloading dangerous software. A central filtering solution is preferred especially if you have a family with children and different devices.
+this image is an [squidGuard](http://www.squidguard.org/) addition to [sameersbn/docker-squid](https://github.com/sameersbn/docker-squid). This image is designed for EXTREMELY restrictive environments where generally NO internet should be allowed. However, with every rule there is an exception. So this image allows you to store a list of whitelist URLS which can be accessed through the proxy.
 
-**new: You can run this container with own white- and blacklists or with public available lists from an external source.** Recommended blacklists are provided by [shallalist](http://www.shallalist.de/) - with some license restrictions especially for commercial use.
-
-**new: You can combine this Container extremely simple with [sebp/elk](https://hub.docker.com/r/sebp/elk/). Just follow the instructions in [muenchhausen/docker-squidguard-elk](https://github.com/muenchhausen/docker-squidguard-elk)!
-
-![Screenshot](img/kibana.png) 
-
-## Sample 1: black- and whitelists from [shallalist](http://www.shallalist.de/) 
+## Sample: Point to your own whitelist
 
 create a docker-compose.yml file
 ```
 squidguard:
-  image: muenchhausen/docker-squidguard:latest
+  image: docker-squidguard/docker-squidguard:latest
   environment:
-    - UPDATE_BLACKLIST_URL=http://www.shallalist.de/Downloads/shallalist.tar.gz
+    - UPDATE_WHITELIST_URL=http://yourwebserver/whitelist.tar.gz
   ports:
     - "3128:3128"
     - "80:80"
@@ -23,60 +17,7 @@ squidguard:
     - 3128
     - 80
 ```
-Setting the env Variable UPDATE_BLACKLIST_URL, the configuration in folder [sample-config-blacklist](https://github.com/muenchhausen/docker-squidguard/blob/master/sample-config-blacklist) will be used. Otherwise the [sample-config-simple](https://github.com/muenchhausen/docker-squidguard/blob/master/sample-config-simple) is used. In practice you need to configure your own black- and whitelists - see the next sample.
-
-## Sample 2: own whitelists
-
-create a docker-compose.yml file:
-```
-squidguard:
-  image: muenchhausen/docker-squidguard:latest
-  environment:
-    - SQUID_CONFIG_SOURCE=/custom-config
-    - SQUID_UID=1000          # only required if MAC OS is used: UserID for user proxy
-  ports:
-    - "3128:3128"
-    - "80:80"
-  expose:
-    - 3128
-    - 80
-  volumes:
-    - /Users/derk/myconfig:/custom-config     # please set here your PATH to your config folder!
-```
-See this [docker-compose.yml](https://github.com/muenchhausen/docker-squidguard/blob/master/docker-compose.yml) file for all possible settings.
-
-create a ```squidGuard.conf``` file in your local myconfig directory
-```
-dbhome /var/lib/squidguard/db
-logdir /var/log/squidguard
-
-dest mywhite {
-        domainlist      /custom-config/whiteDomains
-        urllist         /custom-config/whiteUrls
-}
-
-acl {
-        default {
-                pass    mywhite	none
-                redirect http://localhost/block.html
-                }
-}
-```
-
-create a ```whiteDomains``` file in your local myconfig directory
-```
-debian.org
-wikipedia.org
-muenchhausen.de
-```
-
-create a ```whiteUrls``` file in your local myconfig directory
-```
-github.com/muenchhausen/
-```
-
-## Sample 3: own blacklists combined with [shallalist](http://www.shallalist.de/) 
-see [muenchhausen/docker-squidguard-elk](https://github.com/muenchhausen/docker-squidguard-elk/tree/master/myconfig) !
+Setting the env Variable UPDATE_WHITELIST_URL, the configuration in folder [sample-config-whitelist](https://github.com/pfunkmallone/docker-squidguard/blob/master/sample-config-whitelist) will be used. Otherwise the [sample-config-denyeverything](https://github.com/pfunkmallone/docker-squidguard/blob/master/sample-config-denyeverything) is used. In practice you need to build your own whitelists
 
 ## Run and Test it! 
 
@@ -88,7 +29,7 @@ docker-compose stop && docker-compose rm -f && docker-compose build && docker-co
 * open a second bash, run e.g.:
 ```curl --proxy 192.168.99.100:3128 https://en.wikipedia.org/wiki/Main_Page```
 
-* test a blocked domain from the adv blacklist. This is blocked if UPDATE_BLACKLIST_URL is used:
+* test a blocked domain from the adv blacklist. This is blocked if UPDATE_WHITELIST_URL is used:
 ```curl --proxy 192.168.99.100:3128 http://www.linkadd.de```
 
 * test it in your Browser: Set docker host IP and port 3128 in your proxy settings or operating system proxy configuration.
@@ -155,4 +96,3 @@ For debugging and maintenance purposes you may want access the containers shell.
 ### Autostart the container
 
 add the parameter --restart=always to your docker run command.
-
