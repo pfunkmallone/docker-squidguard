@@ -2,16 +2,13 @@ squidguard:
   # either - build your git clone:
   #build: .
   # or use the image from docker hub:
-  image: muenchhausen/docker-squidguard:latest
+  image: pfunkmallone/docker-squidguard:latest
   environment:
     # WPAD is optional 
     - WPAD_IP=192.168.99.100
     - WPAD_NOPROXY_NET=192.168.0.0
     - WPAD_NOPROXY_MASK=255.255.0.0
-    # blacklisting is optional: please read license of shallalist.de - there are restrictions for commercial use
-    #- UPDATE_BLACKLIST_URL=http://www.shallalist.de/Downloads/shallalist.tar.gz
-    # to embed your own config folder with squidGuard.conf:
-    #- SQUID_CONFIG_SOURCE=/custom-config
+    #- UPDATE_WHITELIST_URL=http://www.shallalist.de/Downloads/shallalist.tar.gz
     #- SQUID_UID=1000          # workaround for folder mapping problem on MAC OS: UserID for user proxy
     # if you need your customized wpad.dat or block.html file, 
     #    simply place them to your host volume that is mapped to SQUID_CONFIG_SOURCE
@@ -21,8 +18,3 @@ squidguard:
   expose:
     - 3128
     - 80
-  #volumes:
-    # example mapping for SQUID_CONFIG_SOURCE
-    #- /Users/derk/Documents/GitProjects/docker-squidguard/myconfig:/custom-config
-    # example mapping for squid log directory
-    #- /Users/derk/Documents/GitProjects/docker-squidguard/mylog:/var/log/squid3
