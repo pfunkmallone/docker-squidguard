@@ -14,8 +14,8 @@ ADD block.html /var/www/html/block.html
 RUN echo "redirect_program /usr/bin/squidGuard -c /etc/squidguard/squidGuard.conf" >> /etc/squid3/squid.conf
 
 RUN rm /etc/squidguard/squidGuard.conf
-ADD sample-config-blacklist /sample-config-blacklist
-ADD sample-config-simple /sample-config-simple
+ADD sample-config-whitelist /sample-config-whitelist
+ADD sample-config-denyeverything /sample-config-denyeverything
 RUN mkdir /custom-config
 
 ADD startSquidGuard /startSquidGuard
